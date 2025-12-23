@@ -1,0 +1,40 @@
+# AWS Tech Guardrails & Compliance Platform
+# Enterprise Edition - Streamlit Cloud Deployment
+# ================================================
+
+# Core Framework
+streamlit>=1.28.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# AWS SDK
+boto3>=1.28.0
+botocore>=1.31.0
+
+# Visualization
+plotly>=5.17.0
+altair>=5.1.0
+
+# Date/Time handling
+python-dateutil>=2.8.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# JSON Schema validation
+jsonschema>=4.19.0
+
+# HTTP requests
+requests>=2.31.0
+
+# YAML processing
+pyyaml>=6.0.0
+
+# Excel export
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
+
+# Caching
+cachetools>=5.3.0
