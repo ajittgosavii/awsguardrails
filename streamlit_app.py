@@ -23,25 +23,64 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import random
 
-# Add utils to path for imports - handle both local and Streamlit Cloud
-app_dir = os.path.dirname(os.path.abspath(__file__))
-if app_dir not in sys.path:
-    sys.path.insert(0, app_dir)
+# Simple inline authentication for Streamlit Cloud compatibility
+# This avoids module import issues entirely
 
-# Try different import methods for compatibility
-try:
-    from utils.auth import authenticate, get_current_user, render_login_page, render_user_info_sidebar, logout
-except ModuleNotFoundError:
-    # Fallback for Streamlit Cloud
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("auth", os.path.join(app_dir, "utils", "auth.py"))
-    auth_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(auth_module)
-    authenticate = auth_module.authenticate
-    get_current_user = auth_module.get_current_user
-    render_login_page = auth_module.render_login_page
-    render_user_info_sidebar = auth_module.render_user_info_sidebar
-    logout = auth_module.logout
+def authenticate(username: str, password: str):
+    """Authenticate user credentials"""
+    users = {
+        "admin": {"password": "admin123", "role": "SUPER_ADMIN", "full_name": "Admin User"},
+        "security_lead": {"password": "security123", "role": "SECURITY_ADMIN", "full_name": "Security Lead"},
+        "compliance_mgr": {"password": "compliance123", "role": "COMPLIANCE_OFFICER", "full_name": "Compliance Manager"},
+        "cloud_arch": {"password": "architect123", "role": "CLOUD_ARCHITECT", "full_name": "Cloud Architect"},
+        "finops": {"password": "finops123", "role": "FINOPS_ANALYST", "full_name": "FinOps Analyst"},
+        "devsecops": {"password": "devsec123", "role": "DEVSECOPS_ENGINEER", "full_name": "DevSecOps Engineer"},
+        "auditor": {"password": "audit123", "role": "AUDITOR", "full_name": "Auditor"},
+        "viewer": {"password": "viewer123", "role": "VIEWER", "full_name": "Viewer"},
+    }
+    if username in users and users[username]["password"] == password:
+        return {"username": username, **{k: v for k, v in users[username].items() if k != "password"}}
+    return None
+
+def render_login_page():
+    """Render login page"""
+    st.markdown("""
+    <style>
+    .login-container { max-width: 400px; margin: 100px auto; padding: 2rem; 
+        background: linear-gradient(145deg, #1a1f2e, #111827); border-radius: 16px; border: 1px solid #374151; }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("## 🛡️ AWS Guardrails")
+        st.markdown("##### Policy as Code Platform")
+        st.markdown("---")
+        
+        username = st.text_input("Username", key="login_user")
+        password = st.text_input("Password", type="password", key="login_pass")
+        
+        if st.button("Sign In", use_container_width=True, type="primary"):
+            user = authenticate(username, password)
+            if user:
+                st.session_state.current_user = user
+                st.rerun()
+            else:
+                st.error("Invalid credentials")
+        
+        with st.expander("Demo Credentials"):
+            st.markdown("**admin** / admin123")
+            st.markdown("**security_lead** / security123")
+            st.markdown("**viewer** / viewer123")
+
+def logout():
+    """Logout user"""
+    if 'current_user' in st.session_state:
+        del st.session_state.current_user
+
+def get_current_user():
+    """Get current user from session"""
+    return st.session_state.get('current_user')
 
 # Page configuration
 st.set_page_config(
