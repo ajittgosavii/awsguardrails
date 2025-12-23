@@ -23,10 +23,25 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import random
 
-# Add utils to path for imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add utils to path for imports - handle both local and Streamlit Cloud
+app_dir = os.path.dirname(os.path.abspath(__file__))
+if app_dir not in sys.path:
+    sys.path.insert(0, app_dir)
 
-from utils.auth import authenticate, get_current_user, render_login_page, render_user_info_sidebar, logout
+# Try different import methods for compatibility
+try:
+    from utils.auth import authenticate, get_current_user, render_login_page, render_user_info_sidebar, logout
+except ModuleNotFoundError:
+    # Fallback for Streamlit Cloud
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("auth", os.path.join(app_dir, "utils", "auth.py"))
+    auth_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(auth_module)
+    authenticate = auth_module.authenticate
+    get_current_user = auth_module.get_current_user
+    render_login_page = auth_module.render_login_page
+    render_user_info_sidebar = auth_module.render_user_info_sidebar
+    logout = auth_module.logout
 
 # Page configuration
 st.set_page_config(
